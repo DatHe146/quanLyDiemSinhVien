@@ -9,7 +9,7 @@ namespace utils
         private static int port = 3306;
         private static string database = "quanlysinhvien";
         private static string username = "root";
-        private static string password = "";
+        private static string password = "Dinncairo1@";
 
         private static string connectionString = $"Server={host};Database={database};Port={port};User ID={username};Password={password};";
 

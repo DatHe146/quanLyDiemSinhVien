@@ -1,7 +1,4 @@
-﻿using model;
-using MySql.Data.MySqlClient;
-using Service;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -10,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using model;
+using Service;
 
 namespace quanLiDiemSinhVien.view
 {
@@ -19,7 +18,7 @@ namespace quanLiDiemSinhVien.view
         private StudentService studentService = new StudentService();
         private SubjectService subjectService = new SubjectService();
         private GradeService gradeService = new GradeService();
-
+        
         private User currentUser;
 
         public AdminMainView(User u)
@@ -34,7 +33,7 @@ namespace quanLiDiemSinhVien.view
             // 2. Load dữ liệu ban đầu
             LoadStudentData();
             LoadSubjectData();
-
+            
             // Tab điểm thì để trống, khi nào tìm mới hiện
         }
 
@@ -66,7 +65,7 @@ namespace quanLiDiemSinhVien.view
         // ==========================================
         //        TAB 1: QUẢN LÝ SINH VIÊN
         // ==========================================
-
+        
         // Hàm tải danh sách SV lên bảng
         private void LoadStudentData()
         {
@@ -93,16 +92,11 @@ namespace quanLiDiemSinhVien.view
         // Nút THÊM SV
         private void btnAddSt_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtStudentId.Text) || string.IsNullOrWhiteSpace(txtStudentName.Text))
-            {
-                MessageBox.Show("⚠️ Vui lòng nhập đủ thông tin!");
-                return;
-            }
             try
             {
                 Student s = new Student(txtStudentId.Text, txtStudentName.Text, txtStudentEmail.Text);
                 studentService.AddStudent(s); // Service kiểm tra trùng lặp và add
-
+                
                 MessageBox.Show("✅ Thêm thành công!");
                 LoadStudentData();
                 ClearStudentInput();
@@ -116,14 +110,10 @@ namespace quanLiDiemSinhVien.view
         // Nút SỬA SV
         private void btnEditSt_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtStudentId.Text) || string.IsNullOrWhiteSpace(txtStudentName.Text))
-            {
-                MessageBox.Show("⚠️ Vui lòng chọn môn cần sửa từ bảng!", "Chưa chọn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
             try
             {
+                if (string.IsNullOrWhiteSpace(txtStudentId.Text)) return;
+                
                 studentService.UpdateStudent(txtStudentId.Text, txtStudentName.Text, txtStudentEmail.Text);
                 MessageBox.Show("✅ Cập nhật thành công!");
                 LoadStudentData();
@@ -137,30 +127,18 @@ namespace quanLiDiemSinhVien.view
         // Nút XÓA SV
         private void btnDelSt_Click(object sender, EventArgs e)
         {
-            try
+            if (MessageBox.Show("Bạn chắc chắn muốn xóa?", "Cảnh báo", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                if (string.IsNullOrEmpty(txtStudentId.Text) || string.IsNullOrEmpty(txtStudentName.Text))
+                if (studentService.DeleteStudent(txtStudentId.Text))
                 {
-                    MessageBox.Show("⚠️ Vui lòng chọn môn cần xoá từ bảng!", "Chưa chọn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    MessageBox.Show("✅ Đã xóa!");
+                    LoadStudentData();
+                    ClearStudentInput();
                 }
-                if (MessageBox.Show("Bạn chắc chắn muốn xóa?", "Cảnh báo", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                else
                 {
-                    if (studentService.DeleteStudent(txtStudentId.Text))
-                    {
-                        MessageBox.Show("✅ Đã xóa!");
-                        LoadStudentData();
-                        ClearStudentInput();
-                    }
-                    else
-                    {
-                        MessageBox.Show("❌ Không tìm được sinh viên đấy!");
-                    }
+                    MessageBox.Show("❌ Không xóa được (Có thể SV đang có điểm).");
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("❌ Lỗi: " + ex.Message);
             }
         }
 
@@ -200,7 +178,7 @@ namespace quanLiDiemSinhVien.view
                 }
             }
         }
-
+        
         // Nút LÀM MỚI
         private void btnRefreshSt_Click(object sender, EventArgs e)
         {
@@ -219,7 +197,7 @@ namespace quanLiDiemSinhVien.view
         // ==========================================
         //        TAB 2: QUẢN LÝ MÔN HỌC
         // ==========================================
-
+        
         private void LoadSubjectData()
         {
             dgvSubjects.Rows.Clear();
@@ -267,7 +245,7 @@ namespace quanLiDiemSinhVien.view
                 }
                 else
                 {
-                    MessageBox.Show("❌ Trùng mã sinh viên hoặc Trùng mã môn học!");
+                    MessageBox.Show("❌ Trùng mã môn học!");
                 }
             }
             catch (FormatException)
@@ -284,15 +262,19 @@ namespace quanLiDiemSinhVien.view
         private void btnDelSub_Click(object sender, EventArgs e)
         {
             // 1. KIỂM TRA: Người dùng đã chọn dòng nào chưa?
-            if (string.IsNullOrEmpty(txtSubjectId.Text) || string.IsNullOrEmpty(txtSubjectName.Text))
+            if (dgvSubjects.CurrentRow == null || dgvSubjects.CurrentRow.Index < 0)
             {
-                MessageBox.Show("⚠️ Vui lòng chọn môn cần sửa từ bảng!", "Chưa chọn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("⚠️ Vui lòng chọn môn học cần xóa trên bảng!", "Chưa chọn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            // 2. LẤY DỮ LIỆU: Lấy Mã môn học từ dòng đang chọn (Cột 0)
+            string subjectId = dgvSubjects.CurrentRow.Cells[0].Value.ToString();
+            string subjectName = dgvSubjects.CurrentRow.Cells[1].Value.ToString(); // Lấy thêm tên để hiện thông báo cho rõ
 
+            // 3. HỎI XÁC NHẬN: Để tránh lỡ tay xóa nhầm
             DialogResult result = MessageBox.Show(
-                $"Bạn có chắc chắn muốn xóa môn: )?\n\nLưu ý: Hành động này không thể hoàn tác!",
+                $"Bạn có chắc chắn muốn xóa môn: {subjectName} ({subjectId})?\n\nLưu ý: Hành động này không thể hoàn tác!",
                 "Xác nhận xóa",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
@@ -303,7 +285,7 @@ namespace quanLiDiemSinhVien.view
                 {
                     // 4. GỌI SERVICE:
                     // Vì hàm trả về bool nên ta kiểm tra if
-                    if (subjectService.DeleteSubject(txtSubjectId.Text))
+                    if (subjectService.DeleteSubject(subjectId))
                     {
                         // -- TRƯỜNG HỢP THÀNH CÔNG --
                         MessageBox.Show("✅ Đã xóa môn học thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -319,7 +301,7 @@ namespace quanLiDiemSinhVien.view
                     else
                     {
                         // Trường hợp trả về false (ít khi xảy ra nếu đã bắt try-catch, nhưng cứ để cho chắc)
-                        MessageBox.Show("❌ Xóa thất bại. không tìm được id.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("❌ Xóa thất bại. Vui lòng thử lại.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 catch (Exception ex)
@@ -429,11 +411,6 @@ namespace quanLiDiemSinhVien.view
             try
             {
                 double score = double.Parse(txtScore.Text);
-                if (!double.TryParse(txtScore.Text, out score))
-                {
-                    MessageBox.Show("❌ Điểm phải là số! Không được nhập chữ.", "Lỗi nhập liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return; // Dừng hàm ngay lập tức, không chạy xuống dưới nữa
-                }
                 if (score < 0 || score > 10)
                 {
                     MessageBox.Show("❌ Điểm phải từ 0 - 10!");
@@ -442,17 +419,17 @@ namespace quanLiDiemSinhVien.view
 
                 gradeService.AddOrUpdateGrade(txtGradeSid.Text, txtGradeSubId.Text, score);
                 MessageBox.Show("✅ Đã lưu điểm!");
-
                 txtScore.Text = "";
+                
                 // Nếu đang xem bảng điểm của SV đó thì load lại luôn cho tiện
                 if (txtSearchGrade.Text == txtGradeSid.Text)
                 {
                     btnSearchGrade_Click(null, null);
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show("❌ Lỗi: " + ex.Message);
+                MessageBox.Show("❌ Mã không tồn tại hoặc điểm sai định dạng!");
             }
         }
 
@@ -483,13 +460,13 @@ namespace quanLiDiemSinhVien.view
 
                     dgvGrades.Rows.Add(g.StudentId, g.SubjectId, subName, g.Score);
                 }
-
+                
                 // Tính GPA
                 double gpa = gradeService.CalculateGPA(sid);
                 lblGPA.Text = "GPA Tích Lũy: " + gpa.ToString("F2");
             }
         }
-
+        
         // Click bảng điểm -> điền ngược lên form
         private void dgvGrades_CellClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -517,6 +494,24 @@ namespace quanLiDiemSinhVien.view
             new ChangePasswordView(currentUser).ShowDialog();
         }
 
+        private void dgvSubjects_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
 
+        }
+
+        private void txtSubjectName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtSearchSub_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtSearchGrade_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

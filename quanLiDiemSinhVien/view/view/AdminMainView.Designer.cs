@@ -440,7 +440,7 @@
             this.txtSearchSub.Name = "txtSearchSub";
             this.txtSearchSub.Size = new System.Drawing.Size(169, 26);
             this.txtSearchSub.TabIndex = 11;
-          
+            this.txtSearchSub.TextChanged += new System.EventHandler(this.txtSearchSub_TextChanged);
             // 
             // label12
             // 
@@ -500,7 +500,7 @@
             this.dgvSubjects.Size = new System.Drawing.Size(371, 315);
             this.dgvSubjects.TabIndex = 6;
             this.dgvSubjects.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvSubjects_CellClick);
-            
+            this.dgvSubjects.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvSubjects_CellContentClick);
             // 
             // txtCredit
             // 
@@ -519,7 +519,7 @@
             this.txtSubjectName.Name = "txtSubjectName";
             this.txtSubjectName.Size = new System.Drawing.Size(160, 26);
             this.txtSubjectName.TabIndex = 4;
-            
+            this.txtSubjectName.TextChanged += new System.EventHandler(this.txtSubjectName_TextChanged);
             // 
             // txtSubjectId
             // 
@@ -619,7 +619,7 @@
             this.txtSearchGrade.Name = "txtSearchGrade";
             this.txtSearchGrade.Size = new System.Drawing.Size(228, 26);
             this.txtSearchGrade.TabIndex = 8;
-            
+            this.txtSearchGrade.TextChanged += new System.EventHandler(this.txtSearchGrade_TextChanged);
             // 
             // label11
             // 
