@@ -43,16 +43,19 @@ namespace Service
                 // Mã lỗi 1452 thường là lỗi foreign key trong MySQL
                 if (e.Number == 1452)
                 {
-                    Console.WriteLine("❌ Lỗi: Mã SV hoặc Mã MH không tồn tại trong hệ thống.");
+                    Console.WriteLine("sai ma sinh vien hoac ma mon hoc");
+                    throw new Exception("Sai mã sinh viên hoặc mã môn học!");
                 }
                 else
                 {
                     Console.WriteLine("❌ Lỗi Database: " + e.Message);
+                    throw new Exception("Lỗi Database!");
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine("❌ Lỗi hệ thống: " + e.Message);
+                throw new Exception(e.Message);
             }
         }
 

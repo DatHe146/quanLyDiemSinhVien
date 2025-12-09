@@ -156,23 +156,20 @@ namespace Service
                         int rows = cmd.ExecuteNonQuery();
 
                         // Nếu số dòng > 0 nghĩa là đã xóa được
-                        return rows > 0;
+                        if (rows > 0)
+                        {
+                            Console.WriteLine("xoa thanh cong !");
+                            return true;
+                        }
+                        else
+                        {
+                            Console.WriteLine("khong tim thay mon hoc");
+                            return false;
+                        }
                     }
                 }
             }
-            catch (MySqlException ex)
-            {
-                // Lỗi 1451: Cannot delete or update a parent row (Dính khóa ngoại - Môn học đang có điểm)
-                if (ex.Number == 1451)
-                {
-                    // Ném lỗi ra để bên View hiện thông báo cụ thể
-                    throw new Exception("Không thể xóa môn này vì đã có sinh viên đăng ký/có điểm!");
-                }
 
-                // Các lỗi khác
-                Console.WriteLine("Lỗi SQL: " + ex.Message);
-                return false;
-            }
             catch (Exception e)
             {
                 Console.WriteLine("Lỗi hệ thống: " + e.Message);
